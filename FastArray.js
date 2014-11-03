@@ -1,7 +1,21 @@
 FastArray = function(array){
-  this._storage = array || [];
+
+  if (Array.isArray(array)){
+
+    this._storage = array;
+    this.length = array.length;
+
+  } else {
+
+    this._storage = [];
+    this.length = 0;
+    
+  }
+
   this._shift = 0;
+  this._unshift = [];
   this._spliceAt = [];
+
 }
 
 FastArray.prototype._find = function(index){
@@ -10,27 +24,67 @@ FastArray.prototype._find = function(index){
 
 }
 
-FastArray.prototype.get = function(index){
+FastArray.prototype.getSet = function(index,value){
 
-  return this._storage[ this._find(index) ];
+  var result = value;
 
-};
+  if (index < this.length){
 
-FastArray.prototype.set = function(index,value){
+    if (index >= this._unshift.length){
 
-  return this._storage[ this._find(index) ] = value;
+      if (arguments.length > 1){
+
+        this._storage[ this._find(index) ] = value;
+
+      } else {
+
+        result = this._storage[ this._find(index) ];
+
+      }
+
+    } else {
+
+      if (arguments.length > 1){
+
+        this._unshift[ this._unshift.length - 1 - index ] = value;
+
+      } else {
+
+        result = this._unshift[ this._unshift.length - 1 - index ];
+
+      }
+
+    }
+    
+  }
+
+  return result;
 
 };
 
 FastArray.prototype.shift = function(){
 
-  this.length--;
+  var result;
 
-  var result = this.get(0);
+  if (this.length > 0){
 
-  delete this._storage[ this._find(0) ];
+    this.length--;
 
-  this._shift++;
+    if (this._shift >= 0){
+
+      result = this.getSet(0);
+
+      delete this._storage[ this._find(0) ];
+
+    } else {
+
+      result = this._unshift.pop();
+
+    }
+
+    this._shift++;
+
+  }
 
   return result;
 
@@ -38,17 +92,17 @@ FastArray.prototype.shift = function(){
 
 FastArray.prototype.unshift = function(value){
 
-  if (this._shift === 0) {
+  this.length++;
+  
+  this._shift--;
 
-    Array.prototype.unshift.call(this._storage,value);
+  if (this._shift >= 0) {
+
+    return this.getSet(0,value);
 
   } else {
 
-    this.length++;
-
-    this._shift--;
-
-    this.set(0,value);
+    return this._unshift.push(value);
 
   }
 
@@ -56,12 +110,24 @@ FastArray.prototype.unshift = function(value){
 
 FastArray.prototype.push = function(value){
 
+  this.length++;
+
   return this._storage.push(value);
 
 };
 
 FastArray.prototype.pop = function(){
 
-  return this._storage.pop();
+  if (this._storage.length > 0){
+
+    return this._storage.pop();
+
+  } else if (this._unshift.length > 0){
+
+    return this._unshift.unshift();
+
+  }
+
+  this.length > 0 && this.length--;
 
 };
