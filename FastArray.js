@@ -118,16 +118,20 @@ FastArray.prototype.push = function(value){
 
 FastArray.prototype.pop = function(){
 
-  if (this._storage.length > 0){
+  if(this.length > 0){
 
-    return this._storage.pop();
+    this.length--;
 
-  } else if (this._unshift.length > 0){
+    if (this._storage.length > 0){
 
-    return this._unshift.unshift();
+      return this._storage.pop();
+
+    } else {
+
+      return this._unshift.unshift();
+
+    }
 
   }
-
-  this.length > 0 && this.length--;
 
 };
