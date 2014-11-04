@@ -4,6 +4,12 @@ FastArray = function(array){
 
     this._storage = array;
     this.length = array.length;
+    delete this._storage.push;
+    delete this._storage.pop;
+    delete this._storage.shift;
+    delete this._storage.unshift;
+    delete this._storage.slice;
+    delete this._storage.splice;
 
   } else {
 
@@ -133,5 +139,58 @@ FastArray.prototype.pop = function(){
     }
 
   }
+
+};
+
+FastArray.prototype.each = function(callback,start,end){
+
+  var holder;
+  var i;
+
+  start = start === +start ? Math.max(Math.min(start,this.length - 1),0) : 0;
+
+  end = end === +end ? Math.max(Math.min(end,this.length),-1) : this.length;
+
+  if(end > start){
+
+    for ( i = start; i < end; i++ ){
+
+      callback(this.getSet(i),i,this);
+
+    }
+
+  } else if (start > end){
+
+    for ( i = start; i > end; i-- ){
+
+      callback(this.getSet(i),i,this);
+
+    }    
+
+  }
+
+};
+
+FastArray.prototype.returnArray = function(start,end){
+
+  var result;
+
+  if (this._shift === 0){
+
+    result = this._storage.slice(start,end);
+
+  } else {
+
+    result = [];
+
+    this.each(function(value){
+
+      result.push(value);
+
+    },start,end);
+
+  }
+
+  return result;
 
 };
